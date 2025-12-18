@@ -5,10 +5,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"nirjan.dev/snippetbox/pkg/forms"
 	"nirjan.dev/snippetbox/pkg/models"
 )
 
 type templateData struct {
+	Form        *forms.Form
 	CurrentYear int
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet

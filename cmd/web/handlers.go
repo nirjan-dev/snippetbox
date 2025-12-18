@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"nirjan.dev/snippetbox/pkg/forms"
 	"nirjan.dev/snippetbox/pkg/models"
 )
 
@@ -45,7 +46,9 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "create.page.tmpl", nil)
+	app.render(w, r, "create.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
@@ -55,9 +58,20 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires := r.PostForm.Get("expires")
+	form := forms.New(r.PostForm)
+	form.Required("title", "content", "expires")
+	form.MaxLength("title", 100)
+	form.PermittedValues("expires", "365", "7", "1")
+
+	if !form.Valid() {
+		app.render(w, r, "create.page.tmpl", &templateData{
+			Form: form,
+		})
+	}
+
+	title := form.Get("title")
+	content := form.Get("content")
+	expires := form.Get("expires")
 
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
