@@ -12,7 +12,9 @@ func (app *application) routes() http.Handler {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("GET /ping", ping)
 	mux.Handle("GET /{$}", dynamicMiddleware.ThenFunc(app.home))
+
 	mux.Handle("GET /snippet/{id}", dynamicMiddleware.ThenFunc(app.showSnippet))
 	mux.Handle("GET /snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
 	mux.Handle("POST /snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
